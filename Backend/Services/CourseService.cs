@@ -21,5 +21,8 @@ namespace Backend.Services
 
         public async Task<Course?> GetByIdAsync(string id) =>
             await _courseCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+        public async Task CreateAsync(Course newCourse) =>
+            await _courseCollection.InsertOneAsync(newCourse);
     }
 }
