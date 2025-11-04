@@ -7,15 +7,15 @@ namespace Backend.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? Id { get; set; }
-
+        public string? Id { get; set; } 
+        
         [BsonElement("title")]
         public string Title { get; set; } = null!;
 
         [BsonElement("description")]
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
 
-        [BsonElement("category")]
-        public string Category { get; set; } = null!;
+        [BsonElement("duration")]
+        public string? Duration { get; set; }
     }
 }
