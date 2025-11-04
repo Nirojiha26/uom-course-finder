@@ -29,5 +29,15 @@ namespace Backend.Controllers
             if (course == null) return NotFound();
             return Ok(course);
         }
+        [HttpPost]
+public async Task<ActionResult<Course>> Create(Course newCourse)
+{
+    if (string.IsNullOrWhiteSpace(newCourse.Title))
+        return BadRequest("Course title is required");
+
+    await _courseService.CreateAsync(newCourse);
+    return CreatedAtAction(nameof(GetById), new { id = newCourse.Id }, newCourse);
+}
+
     }
 }
