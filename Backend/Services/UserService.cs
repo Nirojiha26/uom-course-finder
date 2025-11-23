@@ -20,7 +20,17 @@ namespace Backend.Services
         public Task<User?> GetByEmailAsync(string email) =>
             _users.Find(u => u.Email == email).FirstOrDefaultAsync();
 
+        public Task<User?> GetByUsernameAsync(string username) =>
+            _users.Find(u => u.Username == username).FirstOrDefaultAsync();
+
+        // For OTP Reset
+        public Task<User?> GetByResetCodeAsync(string code) =>
+            _users.Find(u => u.PasswordResetCode == code).FirstOrDefaultAsync();
+
         public Task CreateAsync(User user) =>
             _users.InsertOneAsync(user);
+
+        public Task UpdateAsync(User user) =>
+            _users.ReplaceOneAsync(u => u.Id == user.Id, user);
     }
 }
