@@ -1,5 +1,6 @@
 import axios from "axios";
 import Constants from "expo-constants";
+import { getToken } from "../utils/Storage";
 
 const API_URL =
   Constants.expoConfig?.extra?.API_URL || process.env.API_URL || "http://192.168.86.122:5194/api";
@@ -10,6 +11,20 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+// Attach Authorization header if token exists
+api.interceptors.request.use(async (config) => {
+  try {
+    const token = await getToken();
+    if (token) {
+      config.headers = {
+        ...(config.headers || {}),
+        Authorization: `Bearer ${token}`,
+      } as any;
+    }
+  } catch {}
+  return config;
 });
 
 // ============= API CALLS =============
