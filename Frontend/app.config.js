@@ -5,6 +5,8 @@ export default {
     name: "uom-course-finder",
     slug: "uom-course-finder",
     version: "1.0.0",
+    plugins: ["expo-secure-store"],
+
     extra: {
       API_URL: process.env.API_URL,
     },

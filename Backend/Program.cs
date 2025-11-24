@@ -17,6 +17,10 @@ builder.Services.Configure<MongoDbSettings>(
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("JwtSettings"));
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5194); // Allow LAN & phone access
+});
 
 //  Dependency Injection
 
