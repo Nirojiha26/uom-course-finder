@@ -7,11 +7,14 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import api from "../services/api";
+import { forgotPassword } from "../services/auth";
 
 export default function ForgotPasswordScreen() {
   type RootStackParamList = {
@@ -26,135 +29,149 @@ export default function ForgotPasswordScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [loading, setLoading] = useState(false);
 
-  // Validation Schema
   const ForgotSchema = Yup.object().shape({
     emailOrUsername: Yup.string().required("Email or Username is required"),
   });
 
-  interface ForgotValues { emailOrUsername: string }
+  const handleForgot = async (values: { emailOrUsername: string }) => {
+  setLoading(true);
+  try {
+    await forgotPassword({ email: values.emailOrUsername }); // FIXED ⭐
 
-  const handleForgot = async (values: ForgotValues) => {
-    setLoading(true);
-    try {
-      await api.post("/Auth/forgot-password", {
-        emailOrUsername: values.emailOrUsername,
-      });
+    Alert.alert("Success", "Reset OTP has been sent to your email!");
+    navigation.navigate("ResetPassword", {
+      emailOrUsername: values.emailOrUsername,
+    });
+  } catch (err: any) {
 
-      Alert.alert("Success", "Password reset OTP sent to your email!");
+    const message =
+      err?.response?.data?.errors ??
+      err?.response?.data?.message ??
+      err?.response?.data ??
+      "Something went wrong";
 
-      navigation.navigate("ResetPassword", {
-        emailOrUsername: values.emailOrUsername,
-      });
-    } catch (err: any) {
-      Alert.alert("Error", err.response?.data || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
+    Alert.alert("Error", JSON.stringify(message)); // better formatting
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Forgot Password</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={{ flex: 1, backgroundColor: "#fff" }}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Forgot your Password?</Text>
 
-      <Text style={styles.subtitle}>
-        Enter your email or username to receive a reset code.
-      </Text>
+        <Text style={styles.subtitle}>
+          Enter your email address and we will send you a code to reset your password.
+        </Text>
 
-      <Formik<ForgotValues>
-        initialValues={{ emailOrUsername: "" }}
-        validationSchema={ForgotSchema}
-        onSubmit={handleForgot}
-      >
-        {({ handleChange, handleSubmit, values, errors, touched }) => (
-          <>
-            {/* Email or Username */}
-            <TextInput
-              placeholder="Email or Username"
-              style={styles.input}
-              value={values.emailOrUsername}
-              onChangeText={handleChange("emailOrUsername")}
-            />
-            {touched.emailOrUsername && errors.emailOrUsername && (
-              <Text style={styles.error}>{errors.emailOrUsername}</Text>
-            )}
-
-            {/* Submit Button */}
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => handleSubmit()}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.buttonText}>Send Reset Code</Text>
+        <Formik
+          initialValues={{ emailOrUsername: "" }}
+          validationSchema={ForgotSchema}
+          onSubmit={handleForgot}
+        >
+          {({ handleChange, handleSubmit, values, errors, touched }) => (
+            <View style={{ marginTop: 10 }}>
+              {/* Input */}
+              <TextInput
+                placeholder="Enter Email or Username"
+                placeholderTextColor="#9b9b9b"
+                style={styles.input}
+                value={values.emailOrUsername}
+                onChangeText={handleChange("emailOrUsername")}
+              />
+              {touched.emailOrUsername && errors.emailOrUsername && (
+                <Text style={styles.error}>{errors.emailOrUsername}</Text>
               )}
-            </TouchableOpacity>
 
-            {/* Back to login */}
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Login")}
-              style={{ marginTop: 20 }}
-            >
-              <Text style={styles.linkText}>Back to Login</Text>
-            </TouchableOpacity>
-          </>
-        )}
-      </Formik>
-    </View>
+              {/* Submit */}
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => handleSubmit()}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Send</Text>
+                )}
+              </TouchableOpacity>
+
+              {/* Back to Login */}
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Login")}
+                style={{ marginTop: 22 }}
+              >
+                <Text style={styles.linkText}>Back to Login</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </Formik>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
-// -------------------------------
-// Styles
-// -------------------------------
+/* --------------------- STYLES ----------------------- */
+
+const PRIMARY = "#491B6D";
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 25,
-    backgroundColor: "#fff",
-    justifyContent: "center",
+    paddingHorizontal: 28,
+    paddingTop: 90,
+    paddingBottom: 40,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "700",
+    color: PRIMARY,
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   subtitle: {
     textAlign: "center",
-    color: "#666",
-    fontSize: 15,
-    marginBottom: 25,
+    color: "#6b6b6b",
+    fontSize: 14,
+    marginBottom: 30,
+    paddingHorizontal: 10,
   },
   input: {
-    height: 50,
+    height: 52,
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
+    borderColor: "#E7E2EF",
+    borderRadius: 12,
     paddingHorizontal: 15,
     marginBottom: 12,
-  },
-  error: {
-    color: "red",
-    fontSize: 13,
-    marginBottom: 8,
+    fontSize: 15,
+    color: "#222",
   },
   button: {
-    backgroundColor: "#1e90ff",
+    backgroundColor: PRIMARY,
     paddingVertical: 14,
-    borderRadius: 10,
-    marginTop: 10,
+    borderRadius: 12,
+    alignItems: "center",
+    elevation: 2,
   },
   buttonText: {
     color: "#fff",
-    textAlign: "center",
-    fontSize: 16,
     fontWeight: "700",
+    fontSize: 16,
   },
   linkText: {
     textAlign: "center",
-    color: "#1e90ff",
+    color: PRIMARY,
     fontSize: 15,
+    fontWeight: "600",
+  },
+  error: {
+    color: "#ff4d4f",
+    fontSize: 12,
+    marginBottom: 8,
   },
 });

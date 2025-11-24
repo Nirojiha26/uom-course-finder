@@ -7,12 +7,17 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from "react-native";
 import { useRoute, useNavigation, NavigationProp } from "@react-navigation/native";
-import api from "../services/api";
+import { verifyOtp } from "../services/auth";
 
 export default function OtpVerifyScreen() {
   const route = useRoute<any>();
+  const email = route.params?.email;
+
   type RootStackParamList = {
     Login: undefined;
     Register: undefined;
@@ -23,8 +28,6 @@ export default function OtpVerifyScreen() {
   };
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
-  const email = route.params?.email; // Email passed from RegisterScreen
 
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,13 +40,8 @@ export default function OtpVerifyScreen() {
 
     setLoading(true);
     try {
-      const res = await api.post("/Auth/verify-email", {
-        email,
-        code,
-      });
-
+await verifyOtp({ email, code });
       Alert.alert("Success", "Email verified successfully!");
-
       navigation.navigate("Login");
     } catch (err: any) {
       Alert.alert("Error", err.response?.data || "Invalid OTP");
@@ -53,92 +51,106 @@ export default function OtpVerifyScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Verify Your Email</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={{ flex: 1, backgroundColor: "#fff" }}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        
+        <Text style={styles.title}>Email Verification</Text>
+        <Text style={styles.subtitle}>Enter the 6-digit OTP sent to</Text>
+        <Text style={styles.emailText}>{email}</Text>
 
-      <Text style={styles.subtitle}>
-        Enter the 6-digit code sent to:
-      </Text>
-      <Text style={styles.emailText}>{email}</Text>
+        <TextInput
+          placeholder="Enter OTP"
+          placeholderTextColor="#9b9b9b"
+          style={styles.input}
+          keyboardType="numeric"
+          maxLength={6}
+          value={code}
+          onChangeText={setCode}
+        />
 
-      <TextInput
-        placeholder="Enter OTP"
-        style={styles.input}
-        keyboardType="numeric"
-        maxLength={6}
-        value={code}
-        onChangeText={setCode}
-      />
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleVerify}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>VERIFY</Text>
+          )}
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleVerify}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Verify</Text>
-        )}
-      </TouchableOpacity>
+        <TouchableOpacity style={{ marginTop: 18 }}>
+          <Text style={styles.resendText}>Resend Code</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={{ marginTop: 15 }}>
-        <Text style={styles.linkText}>Resend Code</Text>
-      </TouchableOpacity>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
+/* ------------------------------- */
+/*           STYLES                */
+/* ------------------------------- */
+
+const PRIMARY = "#491B6D";
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 25,
-    backgroundColor: "#fff",
-    justifyContent: "center",
+    paddingHorizontal: 28,
+    paddingTop: 80,
+    paddingBottom: 40,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "700",
+    color: PRIMARY,
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   subtitle: {
     textAlign: "center",
-    fontSize: 15,
-    color: "#666",
+    fontSize: 14,
+    color: "#6b6b6b",
   },
   emailText: {
     textAlign: "center",
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 20,
+    marginBottom: 30,
     color: "#333",
   },
   input: {
     height: 55,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 10,
+    borderColor: "#E7E2EF",
+    backgroundColor: "#fff",
+    borderRadius: 12,
     paddingHorizontal: 15,
-    letterSpacing: 5,
     fontSize: 22,
     textAlign: "center",
+    letterSpacing: 8,
     marginBottom: 15,
   },
   button: {
-    backgroundColor: "#1e90ff",
+    backgroundColor: PRIMARY,
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: 12,
+    alignItems: "center",
+    elevation: 2,
   },
   buttonText: {
     color: "#fff",
-    textAlign: "center",
-    fontSize: 17,
     fontWeight: "700",
+    fontSize: 16,
   },
-  linkText: {
+  resendText: {
     textAlign: "center",
-    color: "#1e90ff",
+    color: PRIMARY,
     fontSize: 15,
+    fontWeight: "700",
   },
 });
