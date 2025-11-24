@@ -17,14 +17,14 @@ namespace Backend.Services
             _users = db.GetCollection<User>("Users");
         }
 
-        public Task<User?> GetByEmailAsync(string email) =>
+        public Task<User> GetByEmailAsync(string email) =>
             _users.Find(u => u.Email == email).FirstOrDefaultAsync();
 
-        public Task<User?> GetByUsernameAsync(string username) =>
+        public Task<User> GetByUsernameAsync(string username) =>
             _users.Find(u => u.Username == username).FirstOrDefaultAsync();
 
         // For OTP Reset
-        public Task<User?> GetByResetCodeAsync(string code) =>
+        public Task<User> GetByResetCodeAsync(string code) =>
             _users.Find(u => u.PasswordResetCode == code).FirstOrDefaultAsync();
 
         public Task CreateAsync(User user) =>
