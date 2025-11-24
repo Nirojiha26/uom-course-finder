@@ -1,20 +1,29 @@
-import { getToken } from "../utils/Storage";
-import { useEffect, useState } from "react";
-import AuthStack from "./AuthStack";
-import AppStack from "./AppStack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import LoginScreen from "../screens/LoginScreen";
+import RegisterScreen from "../screens/RegisterScreen";
+import OtpVerifyScreen from "../screens/OtpVerifyScreen";
+import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
+import ResetPasswordScreen from "../screens/ResetPasswordScreen";
+import HomeScreen from "../screens/HomeScreen";
+
+const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
-  const [auth, setAuth] = useState<boolean | null>(null);
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      
+      {/* Always start here */}
+      <Stack.Screen name="Login" component={LoginScreen} />
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = await getToken();
-      setAuth(!!token);
-    };
-    checkAuth();
-  }, []);
+      {/* Auth flows */}
+      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="OtpVerify" component={OtpVerifyScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
 
-  if (auth === null) return null;
+      {/* After login */}
+      <Stack.Screen name="Home" component={HomeScreen} />
 
-  return auth ? <AppStack /> : <AuthStack />;
+    </Stack.Navigator>
+  );
 }
