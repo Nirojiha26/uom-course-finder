@@ -7,22 +7,23 @@ namespace Backend.Services
 {
     public class CourseService
     {
-        private readonly IMongoCollection<Course> _courseCollection;
+        private readonly IMongoCollection<Course> _courses;
 
-        public CourseService(IOptions<MongoDbSettings> mongoDbSettings)
+        public CourseService(IOptions<MongoDbSettings> mongoSettings)
         {
-            var client = new MongoClient(mongoDbSettings.Value.ConnectionString);
-            var database = client.GetDatabase(mongoDbSettings.Value.DatabaseName);
-            _courseCollection = database.GetCollection<Course>("Courses");
+            var client = new MongoClient(mongoSettings.Value.ConnectionString);
+            var db = client.GetDatabase(mongoSettings.Value.DatabaseName);
+
+            _courses = db.GetCollection<Course>("Courses");
         }
 
-        public async Task<List<Course>> GetAllAsync() =>
-            await _courseCollection.Find(_ => true).ToListAsync();
+        public Task<List<Course>> GetCoursesAsync() =>
+            _courses.Find(_ => true).ToListAsync();
 
-        public async Task<Course?> GetByIdAsync(string id) =>
-            await _courseCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        public Task<Course> GetCourseByIdAsync(string id) =>
+            _courses.Find(c => c.Id == id).FirstOrDefaultAsync();
 
-        public async Task CreateAsync(Course newCourse) =>
-            await _courseCollection.InsertOneAsync(newCourse);
+        public Task CreateCourseAsync(Course course) =>
+            _courses.InsertOneAsync(course);
     }
 }

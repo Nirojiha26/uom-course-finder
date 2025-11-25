@@ -1,4 +1,3 @@
-using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,28 +15,18 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Course>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var courses = await _courseService.GetAllAsync();
-            return Ok(courses);
+            var items = await _courseService.GetCoursesAsync();
+            return Ok(items);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Course>> GetById(string id)
+        public async Task<IActionResult> GetById(string id)
         {
-            var course = await _courseService.GetByIdAsync(id);
-            if (course == null) return NotFound();
-            return Ok(course);
+            var item = await _courseService.GetCourseByIdAsync(id);
+            if (item == null) return NotFound("Course not found");
+            return Ok(item);
         }
-        [HttpPost]
-public async Task<ActionResult<Course>> Create(Course newCourse)
-{
-    if (string.IsNullOrWhiteSpace(newCourse.Title))
-        return BadRequest("Course title is required");
-
-    await _courseService.CreateAsync(newCourse);
-    return CreatedAtAction(nameof(GetById), new { id = newCourse.Id }, newCourse);
-}
-
     }
 }
