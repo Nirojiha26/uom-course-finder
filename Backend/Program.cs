@@ -27,7 +27,7 @@ builder.WebHost.ConfigureKestrel(options =>
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddSingleton<EmailService>();
-
+builder.Services.AddSingleton<CourseService>();
 
 //  Add Global Authorization
 
