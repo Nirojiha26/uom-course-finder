@@ -1,3 +1,5 @@
+// Frontend/navigation/RootNavigator.tsx
+
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
@@ -5,6 +7,7 @@ import OtpVerifyScreen from "../screens/OtpVerifyScreen";
 import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
 import ResetPasswordScreen from "../screens/ResetPasswordScreen";
 import HomeScreen from "../screens/HomeScreen";
+import CourseDetailsScreen from "../screens/CourseDetailsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +26,7 @@ export default function RootNavigator() {
 
       {/* After login */}
       <Stack.Screen name="Home" component={HomeScreen} />
+       <Stack.Screen name="Details" component={CourseDetailsScreen} />
 
     </Stack.Navigator>
   );
