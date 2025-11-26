@@ -32,5 +32,11 @@ namespace Backend.Services
 
         public Task UpdateAsync(User user) =>
             _users.ReplaceOneAsync(u => u.Id == user.Id, user);
+
+
+            public Task<User> GetByIdAsync(string id) =>
+    _users.Find(u => u.Id == id).FirstOrDefaultAsync();
+
+
     }
 }
