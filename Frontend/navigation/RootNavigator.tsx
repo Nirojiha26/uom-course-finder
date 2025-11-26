@@ -1,32 +1,32 @@
-// Frontend/navigation/RootNavigator.tsx
-
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import OtpVerifyScreen from "../screens/OtpVerifyScreen";
 import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
 import ResetPasswordScreen from "../screens/ResetPasswordScreen";
-import HomeScreen from "../screens/HomeScreen";
+import BottomTabs from "./BottomTabs";
 import CourseDetailsScreen from "../screens/CourseDetailsScreen";
+import FavoritesScreen from "../screens/FavoritesScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import MyCoursesScreen from "../screens/MyCoursesScreen";
 
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      
-      {/* Always start here */}
       <Stack.Screen name="Login" component={LoginScreen} />
-
-      {/* Auth flows */}
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="OtpVerify" component={OtpVerifyScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
 
-      {/* After login */}
-      <Stack.Screen name="Home" component={HomeScreen} />
-       <Stack.Screen name="Details" component={CourseDetailsScreen} />
+      {/* App Main Screens */}
+      <Stack.Screen name="Home" component={BottomTabs} />
+      <Stack.Screen name="Details" component={CourseDetailsScreen} />
+      <Stack.Screen name="Favorites" component={FavoritesScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+<Stack.Screen name="MyCourses" component={MyCoursesScreen} />
 
     </Stack.Navigator>
   );
