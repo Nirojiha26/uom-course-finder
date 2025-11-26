@@ -3,13 +3,16 @@ import { NavigationContainer } from "@react-navigation/native";
 import RootNavigator from "./navigation/RootNavigator";
 import { Provider } from "react-redux";
 import { store } from "./redux/store"; // <-- make sure path is correct!
+import { ThemeProvider } from "./theme/ThemeProvider";
 
 export default function App() {
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <RootNavigator />
-      </NavigationContainer>
+      <ThemeProvider>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      </ThemeProvider>
     </Provider>
   );
 }
