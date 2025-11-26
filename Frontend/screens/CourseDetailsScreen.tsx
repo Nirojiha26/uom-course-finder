@@ -7,10 +7,12 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { getCourseById } from "../services/courses";
 import { Ionicons, Feather } from "@expo/vector-icons";
+import { enrollCourse } from "../services/courses";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { toggleFavorite } from "../redux/slices/favoritesSlice";
@@ -60,7 +62,10 @@ export default function CourseDetailsScreen() {
   return (
     <ScrollView style={styles.container}>
       {/* Back */}
-      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={() => navigation.goBack()}
+      >
         <Ionicons name="arrow-back" size={26} color="#491B6D" />
       </TouchableOpacity>
 
@@ -71,13 +76,28 @@ export default function CourseDetailsScreen() {
       <View style={styles.row}>
         <Text style={styles.title}>{course.title}</Text>
 
-        <TouchableOpacity onPress={() => dispatch(toggleFavorite(course))}>
-          <Feather
-            name={isFav ? "heart" : "heart"}
-            size={26}
-            color={isFav ? "red" : "black"}
-          />
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <TouchableOpacity onPress={() => dispatch(toggleFavorite(course))}>
+            <Feather name="heart" size={26} color={isFav ? "red" : "#444"} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={async () => {
+              try {
+                await enrollCourse(course.id);
+                Alert.alert("Success", "Enrolled successfully!");
+              } catch (err: any) {
+                Alert.alert(
+                  "Error",
+                  err.response?.data ?? "Something went wrong"
+                );
+              }
+            }}
+          >
+            <Text style={styles.buttonText}>Enroll Now</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <Text style={styles.department}>{course.department}</Text>
@@ -130,6 +150,18 @@ const styles = StyleSheet.create({
     marginTop: 16,
     color: "#444",
     lineHeight: 22,
+  },
+  button: {
+    backgroundColor: PRIMARY,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    marginLeft: 12,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 14,
   },
   center: {
     flex: 1,
