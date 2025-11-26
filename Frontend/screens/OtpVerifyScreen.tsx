@@ -11,8 +11,13 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
-import { useRoute, useNavigation, NavigationProp } from "@react-navigation/native";
+import {
+  useRoute,
+  useNavigation,
+  NavigationProp,
+} from "@react-navigation/native";
 import { verifyOtp } from "../services/auth";
+import { useTheme } from "../theme/ThemeProvider";
 
 export default function OtpVerifyScreen() {
   const route = useRoute<any>();
@@ -28,9 +33,9 @@ export default function OtpVerifyScreen() {
   };
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const { colors } = useTheme();
 
   const handleVerify = async () => {
     if (!code.trim()) {
@@ -40,7 +45,7 @@ export default function OtpVerifyScreen() {
 
     setLoading(true);
     try {
-await verifyOtp({ email, code });
+      await verifyOtp({ email, code });
       Alert.alert("Success", "Email verified successfully!");
       navigation.navigate("Login");
     } catch (err: any) {
@@ -53,18 +58,37 @@ await verifyOtp({ email, code });
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={{ flex: 1, backgroundColor: "#fff" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
-      <ScrollView contentContainerStyle={styles.container}>
-        
-        <Text style={styles.title}>Email Verification</Text>
-        <Text style={styles.subtitle}>Enter the 6-digit OTP sent to</Text>
-        <Text style={styles.emailText}>{email}</Text>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <Text style={[styles.title, { color: colors.primary }]}>
+          Email Verification
+        </Text>
+
+        <Text style={[styles.subtitle, { color: colors.muted }]}>
+          Enter the 6-digit OTP sent to
+        </Text>
+
+        <Text style={[styles.emailText, { color: colors.text }]}>
+          {email}
+        </Text>
 
         <TextInput
           placeholder="Enter OTP"
-          placeholderTextColor="#9b9b9b"
-          style={styles.input}
+          placeholderTextColor={colors.muted}
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.input,
+              borderColor: colors.border,
+              color: colors.text,
+            },
+          ]}
           keyboardType="numeric"
           maxLength={6}
           value={code}
@@ -72,7 +96,7 @@ await verifyOtp({ email, code });
         />
 
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, { backgroundColor: colors.primary }]}
           onPress={handleVerify}
           disabled={loading}
         >
@@ -84,19 +108,18 @@ await verifyOtp({ email, code });
         </TouchableOpacity>
 
         <TouchableOpacity style={{ marginTop: 18 }}>
-          <Text style={styles.resendText}>Resend Code</Text>
+          <Text style={[styles.resendText, { color: colors.primary }]}>
+            Resend Code
+          </Text>
         </TouchableOpacity>
-
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
-/* ------------------------------- */
-/*           STYLES                */
-/* ------------------------------- */
-
-const PRIMARY = "#491B6D";
+/* --------------------------------------- */
+/*                 STYLES                  */
+/* --------------------------------------- */
 
 const styles = StyleSheet.create({
   container: {
@@ -107,27 +130,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "700",
-    color: PRIMARY,
     textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
     textAlign: "center",
     fontSize: 14,
-    color: "#6b6b6b",
+    marginBottom: 4,
   },
   emailText: {
     textAlign: "center",
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 30,
-    color: "#333",
   },
   input: {
     height: 55,
     borderWidth: 1,
-    borderColor: "#E7E2EF",
-    backgroundColor: "#fff",
     borderRadius: 12,
     paddingHorizontal: 15,
     fontSize: 22,
@@ -136,7 +155,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   button: {
-    backgroundColor: PRIMARY,
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: "center",
@@ -149,7 +167,6 @@ const styles = StyleSheet.create({
   },
   resendText: {
     textAlign: "center",
-    color: PRIMARY,
     fontSize: 15,
     fontWeight: "700",
   },

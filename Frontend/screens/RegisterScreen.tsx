@@ -15,6 +15,7 @@ import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { registerUser } from "../services/auth";
+import { useTheme } from "../theme/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
 
 type RootStackParamList = {
@@ -28,6 +29,7 @@ type RootStackParamList = {
 
 export default function RegisterScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(false);
   const [secure, setSecure] = useState(true);
 
@@ -42,7 +44,7 @@ export default function RegisterScreen() {
   const handleRegister = async (values: any) => {
     setLoading(true);
     try {
-await registerUser(values);
+      await registerUser(values);
       Alert.alert("Success", "OTP sent to your email");
       navigation.navigate("OtpVerify", { email: values.email });
     } catch (err: any) {
@@ -55,11 +57,21 @@ await registerUser(values);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={{ flex: 1, backgroundColor: "#fff" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Register to get started</Text>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <Text style={[styles.title, { color: colors.primary }]}>
+          Create Account
+        </Text>
+
+        <Text style={[styles.subtitle, { color: colors.muted }]}>
+          Register to get started
+        </Text>
 
         <Formik
           initialValues={{ username: "", email: "", password: "" }}
@@ -69,11 +81,19 @@ await registerUser(values);
           {({ handleChange, handleSubmit, values, errors, touched }) => (
             <View style={styles.form}>
               {/* Username */}
-              <Text style={styles.label}>Username</Text>
+              <Text style={[styles.label, { color: colors.text }]}>Username</Text>
+
               <TextInput
                 placeholder="Enter username"
-                placeholderTextColor="#9b9b9b"
-                style={styles.input}
+                placeholderTextColor={colors.muted}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.input,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
                 value={values.username}
                 onChangeText={handleChange("username")}
               />
@@ -82,11 +102,20 @@ await registerUser(values);
               )}
 
               {/* Email */}
-              <Text style={[styles.label, { marginTop: 14 }]}>Email Address</Text>
+              <Text style={[styles.label, { color: colors.text, marginTop: 14 }]}>
+                Email Address
+              </Text>
               <TextInput
                 placeholder="Enter your email"
-                placeholderTextColor="#9b9b9b"
-                style={styles.input}
+                placeholderTextColor={colors.muted}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.input,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
                 value={values.email}
                 onChangeText={handleChange("email")}
                 keyboardType="email-address"
@@ -96,20 +125,32 @@ await registerUser(values);
               )}
 
               {/* Password */}
-              <Text style={[styles.label, { marginTop: 14 }]}>Password</Text>
+              <Text style={[styles.label, { color: colors.text, marginTop: 14 }]}>
+                Password
+              </Text>
+
               <View style={styles.passwordWrap}>
                 <TextInput
                   placeholder="Create a password"
-                  placeholderTextColor="#9b9b9b"
-                  style={[styles.input, { flex: 1, borderRightWidth: 0 }]}
+                  placeholderTextColor={colors.muted}
                   secureTextEntry={secure}
+                  style={[
+                    styles.input,
+                    {
+                      flex: 1,
+                      borderRightWidth: 0,
+                      backgroundColor: colors.input,
+                      borderColor: colors.border,
+                      color: colors.text,
+                    },
+                  ]}
                   value={values.password}
                   onChangeText={handleChange("password")}
                 />
 
                 <TouchableOpacity
-                  onPress={() => setSecure((prev) => !prev)}
-                  style={styles.eyeButton}
+                  onPress={() => setSecure(!secure)}
+                  style={[styles.eyeButton, { backgroundColor: colors.primary }]}
                 >
                   <Ionicons
                     name={secure ? "eye-off" : "eye"}
@@ -118,13 +159,14 @@ await registerUser(values);
                   />
                 </TouchableOpacity>
               </View>
+
               {touched.password && errors.password && (
                 <Text style={styles.error}>{errors.password}</Text>
               )}
 
               {/* Register Button */}
               <TouchableOpacity
-                style={styles.button}
+                style={[styles.button, { backgroundColor: colors.primary }]}
                 onPress={() => handleSubmit()}
                 disabled={loading}
               >
@@ -137,9 +179,13 @@ await registerUser(values);
 
               {/* Redirect */}
               <View style={styles.footer}>
-                <Text style={styles.footerText}>Already have an account? </Text>
+                <Text style={[styles.footerText, { color: colors.muted }]}>
+                  Already have an account?{" "}
+                </Text>
                 <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                  <Text style={styles.footerLink}>Login</Text>
+                  <Text style={[styles.footerLink, { color: colors.primary }]}>
+                    Login
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -150,11 +196,9 @@ await registerUser(values);
   );
 }
 
-/* ------------------------------- */
-/*           STYLES                */
-/* ------------------------------- */
-
-const PRIMARY = "#491B6D";
+/* ------------------------------------ */
+/*               STYLES                 */
+/* ------------------------------------ */
 
 const styles = StyleSheet.create({
   container: {
@@ -165,12 +209,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: PRIMARY,
     textAlign: "center",
   },
   subtitle: {
     textAlign: "center",
-    color: "#6b6b6b",
     marginTop: 4,
     marginBottom: 26,
     fontSize: 14,
@@ -180,15 +222,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    color: "#333",
     marginBottom: 6,
     fontWeight: "600",
   },
   input: {
     height: 50,
-    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#E7E2EF",
     borderRadius: 10,
     paddingHorizontal: 14,
     fontSize: 15,
@@ -201,13 +240,11 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   eyeButton: {
-    backgroundColor: PRIMARY,
     padding: 12,
     borderTopRightRadius: 10,
     borderBottomRightRadius: 10,
   },
   button: {
-    backgroundColor: PRIMARY,
     paddingVertical: 14,
     borderRadius: 12,
     marginTop: 14,
@@ -225,11 +262,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   footerText: {
-    color: "#666",
     fontSize: 14,
   },
   footerLink: {
-    color: PRIMARY,
     fontSize: 14,
     fontWeight: "700",
   },

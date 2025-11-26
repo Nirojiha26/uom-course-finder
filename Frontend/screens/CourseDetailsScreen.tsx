@@ -16,6 +16,7 @@ import { enrollCourse } from "../services/courses";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { toggleFavorite } from "../redux/slices/favoritesSlice";
+import { useTheme } from "../theme/ThemeProvider";
 
 type RootStackParamList = {
   Details: { id: string };
@@ -28,6 +29,8 @@ export default function CourseDetailsScreen() {
 
   const dispatch = useDispatch();
   const favorites = useSelector((state: RootState) => state.favorites.items);
+
+  const { colors } = useTheme();
 
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -43,7 +46,7 @@ export default function CourseDetailsScreen() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#491B6D" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -60,13 +63,15 @@ export default function CourseDetailsScreen() {
   const isFav = favorites.some((c) => c.id === course.id);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       {/* Back */}
       <TouchableOpacity
         style={styles.backBtn}
         onPress={() => navigation.goBack()}
       >
-        <Ionicons name="arrow-back" size={26} color="#491B6D" />
+        <Ionicons name="arrow-back" size={26} color={colors.primary} />
       </TouchableOpacity>
 
       {/* Image */}
@@ -74,15 +79,21 @@ export default function CourseDetailsScreen() {
 
       {/* Title Row + Heart */}
       <View style={styles.row}>
-        <Text style={styles.title}>{course.title}</Text>
+        <Text style={[styles.title, { color: colors.primary }]}>
+          {course.title}
+        </Text>
 
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity onPress={() => dispatch(toggleFavorite(course))}>
-            <Feather name="heart" size={26} color={isFav ? "red" : "#444"} />
+            <Feather
+              name="heart"
+              size={26}
+              color={isFav ? "red" : colors.muted}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, { backgroundColor: colors.primary }]}
             onPress={async () => {
               try {
                 await enrollCourse(course.id);
@@ -100,15 +111,17 @@ export default function CourseDetailsScreen() {
         </View>
       </View>
 
-      <Text style={styles.department}>{course.department}</Text>
-      <Text style={styles.desc}>{course.description}</Text>
+      <Text style={[styles.department, { color: colors.muted }]}>
+        {course.department}
+      </Text>
+      <Text style={[styles.desc, { color: colors.text }]}>
+        {course.description}
+      </Text>
 
       <View style={{ height: 40 }} />
     </ScrollView>
   );
 }
-
-const PRIMARY = "#491B6D";
 
 const styles = StyleSheet.create({
   container: {
@@ -134,13 +147,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "800",
-    color: PRIMARY,
     width: "80%",
   },
   department: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#6e6e6e",
     paddingHorizontal: 20,
     marginTop: 4,
   },
@@ -148,11 +159,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     fontSize: 15,
     marginTop: 16,
-    color: "#444",
     lineHeight: 22,
   },
   button: {
-    backgroundColor: PRIMARY,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,

@@ -11,27 +11,25 @@ import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootState } from "../redux/store";
 import { Course } from "../redux/slices/favoritesSlice";
 import { Ionicons } from "@expo/vector-icons";
-
-const PRIMARY = "#491B6D";
+import { useTheme } from "../theme/ThemeProvider";
 
 type RootStackParamList = {
   Details: { id: string };
-  Home: undefined;
-  Favorites: undefined;
-  MyCourses: undefined;
-  Profile: undefined;
 };
 
 export default function FavoritesScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const favorites = useSelector((state: RootState) => state.favorites.items);
+  const { colors } = useTheme();
 
   if (favorites.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Ionicons name="heart" size={64} color={PRIMARY} />
-        <Text style={styles.emptyText}>No favorite courses yet</Text>
-        <Text style={styles.emptySubText}>
+      <View style={[styles.emptyContainer, { backgroundColor: colors.background }]}>
+        <Ionicons name="heart" size={64} color={colors.primary} />
+        <Text style={[styles.emptyText, { color: colors.primary }]}>
+          No favorite courses yet
+        </Text>
+        <Text style={[styles.emptySubText, { color: colors.muted }]}>
           Add courses to your favorites to see them here
         </Text>
       </View>
@@ -39,24 +37,31 @@ export default function FavoritesScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.heading}>Favorite Courses</Text>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.heading, { color: colors.primary }]}>Favorite Courses</Text>
 
       {favorites.map((item: Course) => (
         <TouchableOpacity
           key={item.id}
-          style={styles.card}
+          style={[
+            styles.card,
+            { backgroundColor: colors.card, borderLeftColor: colors.primary },
+          ]}
           onPress={() => navigation.navigate("Details", { id: item.id })}
         >
           <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            {item.description && (
-              <Text style={styles.cardDesc} numberOfLines={2}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>
+              {item.title}
+            </Text>
+
+            {item.description ? (
+              <Text style={[styles.cardDesc, { color: colors.muted }]} numberOfLines={2}>
                 {item.description}
               </Text>
-            )}
+            ) : null}
           </View>
-          <Ionicons name="chevron-forward" size={24} color={PRIMARY} />
+
+          <Ionicons name="chevron-forward" size={24} color={colors.primary} />
         </TouchableOpacity>
       ))}
 
@@ -68,7 +73,6 @@ export default function FavoritesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     paddingHorizontal: 20,
     paddingTop: 30,
   },
@@ -76,19 +80,16 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: "700",
-    color: PRIMARY,
     marginBottom: 20,
     marginTop: 10,
   },
 
   card: {
-    backgroundColor: "#fff",
     borderRadius: 16,
     marginBottom: 15,
     elevation: 3,
     padding: 16,
     borderLeftWidth: 4,
-    borderLeftColor: PRIMARY,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -102,13 +103,11 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#222",
     marginBottom: 6,
   },
 
   cardDesc: {
     fontSize: 13,
-    color: "#777",
     lineHeight: 18,
   },
 
@@ -116,20 +115,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
   },
 
   emptyText: {
     fontSize: 20,
     fontWeight: "700",
-    color: PRIMARY,
     marginBottom: 8,
     marginTop: 16,
   },
 
   emptySubText: {
     fontSize: 14,
-    color: "#888",
     textAlign: "center",
     paddingHorizontal: 20,
   },

@@ -11,11 +11,16 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
-import { useNavigation, useRoute, NavigationProp } from "@react-navigation/native";
+import {
+  useNavigation,
+  useRoute,
+  NavigationProp,
+} from "@react-navigation/native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { Ionicons } from "@expo/vector-icons";
 import { resetPassword } from "../services/auth";
+import { useTheme } from "../theme/ThemeProvider";
 
 export default function ResetPasswordScreen() {
   type RootStackParamList = {
@@ -33,6 +38,7 @@ export default function ResetPasswordScreen() {
 
   const [loading, setLoading] = useState(false);
   const [secure, setSecure] = useState(true);
+  const { colors } = useTheme();
 
   // Validation Schema
   const ResetSchema = Yup.object().shape({
@@ -48,36 +54,41 @@ export default function ResetPasswordScreen() {
     setLoading(true);
     try {
       await resetPassword({
-  email: emailOrUsername, 
-  code: values.code,
-  newPassword: values.newPassword,
-});
-
+        email: emailOrUsername,
+        code: values.code,
+        newPassword: values.newPassword,
+      });
 
       Alert.alert("Success", "Password has been reset!");
       navigation.navigate("Login");
     } catch (err: any) {
-    
-        const message =
-          err?.response?.data?.errors ??
-          err?.response?.data?.message ??
-          err?.response?.data ??
-          "Something went wrong";
-    
-        Alert.alert("Error", JSON.stringify(message)); // better formatting
-      } finally {
-        setLoading(false);
-      }
+      const message =
+        err?.response?.data?.errors ??
+        err?.response?.data?.message ??
+        err?.response?.data ??
+        "Something went wrong";
+
+      Alert.alert("Error", JSON.stringify(message)); // better formatting
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={{ flex: 1, backgroundColor: "#fff" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Reset password</Text>
-        <Text style={styles.subtitle}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <Text style={[styles.title, { color: colors.primary }]}>
+          Reset password
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.muted }]}>
           Enter your OTP and create your new password.
         </Text>
 
@@ -91,8 +102,15 @@ export default function ResetPasswordScreen() {
               {/* OTP Input */}
               <TextInput
                 placeholder="Enter 6-digit OTP"
-                placeholderTextColor="#9b9b9b"
-                style={styles.input}
+                placeholderTextColor={colors.muted}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.input,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
                 keyboardType="numeric"
                 maxLength={6}
                 value={values.code}
@@ -106,15 +124,24 @@ export default function ResetPasswordScreen() {
               <View style={styles.passwordWrap}>
                 <TextInput
                   placeholder="Enter new password"
-                  placeholderTextColor="#9b9b9b"
+                  placeholderTextColor={colors.muted}
                   secureTextEntry={secure}
-                  style={[styles.input, { flex: 1, borderRightWidth: 0 }]}
+                  style={[
+                    styles.input,
+                    {
+                      flex: 1,
+                      borderRightWidth: 0,
+                      backgroundColor: colors.input,
+                      borderColor: colors.border,
+                      color: colors.text,
+                    },
+                  ]}
                   value={values.newPassword}
                   onChangeText={handleChange("newPassword")}
                 />
                 <TouchableOpacity
                   onPress={() => setSecure((s) => !s)}
-                  style={styles.eyeButton}
+                  style={[styles.eyeButton, { backgroundColor: colors.primary }]}
                 >
                   <Ionicons
                     name={secure ? "eye-off" : "eye"}
@@ -129,7 +156,7 @@ export default function ResetPasswordScreen() {
 
               {/* Button */}
               <TouchableOpacity
-                style={styles.button}
+                style={[styles.button, { backgroundColor: colors.primary }]}
                 onPress={() => handleSubmit()}
                 disabled={loading}
               >
@@ -145,7 +172,9 @@ export default function ResetPasswordScreen() {
                 onPress={() => navigation.navigate("Login")}
                 style={{ marginTop: 25 }}
               >
-                <Text style={styles.linkText}>Back to Login</Text>
+                <Text style={[styles.linkText, { color: colors.primary }]}>
+                  Back to Login
+                </Text>
               </TouchableOpacity>
             </View>
           )}

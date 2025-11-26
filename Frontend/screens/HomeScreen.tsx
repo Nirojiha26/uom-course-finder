@@ -8,14 +8,14 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
-  FlatList,
 } from "react-native";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { getCourses } from "../services/courses";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
-const PRIMARY = "#491B6D";
-
+import { getCourses } from "../services/courses";
+import { useTheme } from "../theme/ThemeProvider";
+import CourseCard from "../screens/CourseCard";
+// Navigation Types
 type RootStackParamList = {
   Details: { id: string };
   Home: undefined;
@@ -26,12 +26,15 @@ type RootStackParamList = {
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const [courses, setCourses] = useState<any[]>([]);
-  const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
+  const [filtered, setFiltered] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [category, setCategory] = useState("All");
+
+  const { colors } = useTheme(); // 🎨 dynamic dark/light theme
 
   const categories = ["All", "Computer Science", "AI", "Design", "Business"];
 
@@ -40,53 +43,63 @@ export default function HomeScreen() {
     getCourses()
       .then((data) => {
         setCourses(data);
-        setFilteredCourses(data);
+        setFiltered(data);
       })
-      .catch((err) => console.error("API Error:", err))
       .finally(() => setLoading(false));
   }, []);
 
-  // Filtering Logic (SEARCH + CATEGORY)
+  // SEARCH + CATEGORY FILTER
   useEffect(() => {
-    let result = courses;
+    let items = courses;
 
-    if (activeCategory !== "All") {
-      result = result.filter((c) => c.department === activeCategory);
+    if (category !== "All") {
+      items = items.filter((c) => c.department === category);
     }
 
     if (search.trim().length > 0) {
       const key = search.toLowerCase();
-      result = result.filter(
+      items = items.filter(
         (c) =>
           c.title.toLowerCase().includes(key) ||
           c.description.toLowerCase().includes(key)
       );
     }
 
-    setFilteredCourses(result);
-  }, [search, activeCategory, courses]);
+    setFiltered(items);
+  }, [search, category, courses]);
 
+  // Loader
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={PRIMARY} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.heading}>Available Courses</Text>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      showsVerticalScrollIndicator={false}
+    >
+      <Text style={[styles.heading, { color: colors.primary }]}>
+        Available Courses
+      </Text>
 
-      {/* SEARCH BAR */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#888" />
+      {/* 🔍 SEARCH BAR */}
+      <View
+        style={[
+          styles.searchContainer,
+          { backgroundColor: colors.card, borderColor: colors.border },
+        ]}
+      >
+        <Ionicons name="search" size={20} color={colors.muted} />
         <TextInput
           placeholder="Search courses..."
+          placeholderTextColor={colors.muted}
           value={search}
           onChangeText={setSearch}
-          placeholderTextColor="#aaa"
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: colors.text }]}
         />
       </View>
 
@@ -94,20 +107,29 @@ export default function HomeScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 12 }}
       >
-        {categories.map((cat) => {
-          const isActive = activeCategory === cat;
+        {categories.map((item) => {
+          const active = item === category;
           return (
             <TouchableOpacity
-              key={cat}
-              onPress={() => setActiveCategory(cat)}
-              style={[styles.chip, isActive && styles.chipActive]}
+              key={item}
+              onPress={() => setCategory(item)}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: active ? colors.primary : "transparent",
+                  borderColor: active ? colors.primary : colors.border,
+                },
+              ]}
             >
               <Text
-                style={[styles.chipText, isActive && styles.chipTextActive]}
+                style={{
+                  color: active ? "#fff" : colors.text,
+                  fontWeight: "600",
+                }}
               >
-                {cat}
+                {item}
               </Text>
             </TouchableOpacity>
           );
@@ -116,38 +138,51 @@ export default function HomeScreen() {
 
       {/* COURSE LIST */}
       <View style={{ marginTop: 20 }}>
-        {filteredCourses.length === 0 ? (
-          <Text style={styles.noResults}>No courses found.</Text>
+        {filtered.length === 0 ? (
+          <Text style={[styles.noResults, { color: colors.muted }]}>
+            No courses found
+          </Text>
         ) : (
-          filteredCourses.map((course) => (
+          filtered.map((course) => (
             <TouchableOpacity
               key={course.id}
-              style={styles.card}
+              style={[
+                styles.card,
+                { backgroundColor: colors.card, borderColor: colors.border },
+              ]}
               onPress={() => navigation.navigate("Details", { id: course.id })}
             >
               <Image source={{ uri: course.imageUrl }} style={styles.cardImg} />
 
               <View style={{ flex: 1 }}>
-                <Text style={styles.cardTitle}>{course.title}</Text>
-                <Text style={styles.cardDesc}>{course.description}</Text>
-                <Text style={styles.cardDepartment}>{course.department}</Text>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                  {course.title}
+                </Text>
+
+                <Text style={[styles.cardDesc, { color: colors.muted }]}>
+                  {course.description}
+                </Text>
+
+                <Text
+                  style={[styles.cardDepartment, { color: colors.primary }]}
+                >
+                  {course.department}
+                </Text>
               </View>
             </TouchableOpacity>
           ))
         )}
       </View>
 
-      <View style={{ height: 100 }} />
+      <View style={{ height: 120 }} />
     </ScrollView>
   );
 }
 
-/* --------------------- STYLES ----------------------- */
-
+/* ---------------- Styles ---------------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     paddingHorizontal: 20,
     paddingTop: 30,
   },
@@ -155,90 +190,64 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: "700",
-    color: PRIMARY,
     marginBottom: 20,
-    marginTop: 10,
   },
 
+  /* Search */
   searchContainer: {
     flexDirection: "row",
-    backgroundColor: "#f4f4f4",
     padding: 12,
+    borderWidth: 1,
     borderRadius: 12,
     alignItems: "center",
   },
-
   searchInput: {
     marginLeft: 10,
     fontSize: 15,
     flex: 1,
-    color: "#222",
   },
 
+  /* Chips */
   chip: {
-    paddingVertical: 8,
     paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#ccc",
-    marginRight: 10,
+    marginRight: 12,
   },
 
-  chipActive: {
-    backgroundColor: PRIMARY,
-    borderColor: PRIMARY,
-  },
-
-  chipText: {
-    fontSize: 14,
-    color: "#444",
-    fontWeight: "500",
-  },
-
-  chipTextActive: {
-    color: "#fff",
-  },
-
+  /* Cards */
   card: {
-    backgroundColor: "#fff",
     flexDirection: "row",
     padding: 12,
     borderRadius: 16,
-    marginBottom: 15,
-    elevation: 3,
+    borderWidth: 1,
+    marginBottom: 16,
   },
-
   cardImg: {
     width: 90,
     height: 90,
     borderRadius: 12,
     marginRight: 12,
   },
-
   cardTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#222",
   },
-
   cardDesc: {
     fontSize: 13,
-    color: "#777",
     marginTop: 4,
   },
-
   cardDepartment: {
     fontSize: 12,
-    color: PRIMARY,
-    fontWeight: "600",
     marginTop: 4,
+    fontWeight: "600",
   },
 
   noResults: {
     marginTop: 30,
     textAlign: "center",
     fontSize: 16,
-    color: "#888",
   },
 
   center: {

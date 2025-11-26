@@ -15,58 +15,65 @@ import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { forgotPassword } from "../services/auth";
+import { useTheme } from "../theme/ThemeProvider";
+
+type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
+  ResetPassword: { emailOrUsername: string };
+  OtpVerify: { email: string };
+  Home: undefined;
+};
 
 export default function ForgotPasswordScreen() {
-  type RootStackParamList = {
-    Login: undefined;
-    Register: undefined;
-    ForgotPassword: undefined;
-    ResetPassword: { emailOrUsername: string };
-    OtpVerify: { email: string };
-    Home: undefined;
-  };
-
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [loading, setLoading] = useState(false);
+  const { colors } = useTheme();
 
   const ForgotSchema = Yup.object().shape({
     emailOrUsername: Yup.string().required("Email or Username is required"),
   });
 
   const handleForgot = async (values: { emailOrUsername: string }) => {
-  setLoading(true);
-  try {
-    await forgotPassword({ email: values.emailOrUsername }); // FIXED ⭐
+    setLoading(true);
+    try {
+      await forgotPassword({ email: values.emailOrUsername });
 
-    Alert.alert("Success", "Reset OTP has been sent to your email!");
-    navigation.navigate("ResetPassword", {
-      emailOrUsername: values.emailOrUsername,
-    });
-  } catch (err: any) {
+      Alert.alert("Success", "Reset OTP has been sent to your email!");
+      navigation.navigate("ResetPassword", {
+        emailOrUsername: values.emailOrUsername,
+      });
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.errors ??
+        err?.response?.data?.message ??
+        err?.response?.data ??
+        "Something went wrong";
 
-    const message =
-      err?.response?.data?.errors ??
-      err?.response?.data?.message ??
-      err?.response?.data ??
-      "Something went wrong";
-
-    Alert.alert("Error", JSON.stringify(message)); // better formatting
-  } finally {
-    setLoading(false);
-  }
-};
-
+      Alert.alert("Error", JSON.stringify(message));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={{ flex: 1, backgroundColor: "#fff" }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Forgot your Password?</Text>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <Text style={[styles.title, { color: colors.primary }]}>
+          Forgot your Password?
+        </Text>
 
-        <Text style={styles.subtitle}>
-          Enter your email address and we will send you a code to reset your password.
+        <Text style={[styles.subtitle, { color: colors.muted }]}>
+          Enter your email and we will send you a code to reset your password.
         </Text>
 
         <Formik
@@ -76,11 +83,17 @@ export default function ForgotPasswordScreen() {
         >
           {({ handleChange, handleSubmit, values, errors, touched }) => (
             <View style={{ marginTop: 10 }}>
-              {/* Input */}
               <TextInput
                 placeholder="Enter Email or Username"
-                placeholderTextColor="#9b9b9b"
-                style={styles.input}
+                placeholderTextColor={colors.muted}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.border,
+                    color: colors.text,
+                  },
+                ]}
                 value={values.emailOrUsername}
                 onChangeText={handleChange("emailOrUsername")}
               />
@@ -88,9 +101,8 @@ export default function ForgotPasswordScreen() {
                 <Text style={styles.error}>{errors.emailOrUsername}</Text>
               )}
 
-              {/* Submit */}
               <TouchableOpacity
-                style={styles.button}
+                style={[styles.button, { backgroundColor: colors.primary }]}
                 onPress={() => handleSubmit()}
                 disabled={loading}
               >
@@ -101,12 +113,13 @@ export default function ForgotPasswordScreen() {
                 )}
               </TouchableOpacity>
 
-              {/* Back to Login */}
               <TouchableOpacity
                 onPress={() => navigation.navigate("Login")}
                 style={{ marginTop: 22 }}
               >
-                <Text style={styles.linkText}>Back to Login</Text>
+                <Text style={[styles.linkText, { color: colors.primary }]}>
+                  Back to Login
+                </Text>
               </TouchableOpacity>
             </View>
           )}
@@ -118,8 +131,6 @@ export default function ForgotPasswordScreen() {
 
 /* --------------------- STYLES ----------------------- */
 
-const PRIMARY = "#491B6D";
-
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 28,
@@ -129,30 +140,24 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: PRIMARY,
     textAlign: "center",
     marginBottom: 10,
   },
   subtitle: {
     textAlign: "center",
-    color: "#6b6b6b",
     fontSize: 14,
     marginBottom: 30,
     paddingHorizontal: 10,
   },
   input: {
     height: 52,
-    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#E7E2EF",
     borderRadius: 12,
     paddingHorizontal: 15,
     marginBottom: 12,
     fontSize: 15,
-    color: "#222",
   },
   button: {
-    backgroundColor: PRIMARY,
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: "center",
@@ -165,7 +170,6 @@ const styles = StyleSheet.create({
   },
   linkText: {
     textAlign: "center",
-    color: PRIMARY,
     fontSize: 15,
     fontWeight: "600",
   },
