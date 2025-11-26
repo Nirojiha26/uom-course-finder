@@ -16,9 +16,9 @@ namespace Backend.Models
         public string? Description { get; set; }
 
         [BsonElement("imageUrl")]
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
 
         [BsonElement("department")]
-        public string Department { get; set; }
+        public string? Department { get; set; }
     }
 }

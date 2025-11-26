@@ -29,10 +29,16 @@ namespace Backend.Models
         public DateTime? EmailVerificationExpires { get; set; }
 
         [BsonElement("passwordResetCode")]
-public string? PasswordResetCode { get; set; }
+        public string? PasswordResetCode { get; set; }
 
-[BsonElement("passwordResetExpires")]
-public DateTime? PasswordResetExpires { get; set; }
+        [BsonElement("passwordResetExpires")]
+        public DateTime? PasswordResetExpires { get; set; }
 
-}
+        [BsonElement("fullName")]
+        public string? FullName { get; set; }
+
+        [BsonElement("preferredDark")]
+        public bool? PreferredDark { get; set; }
+
+    }
 }

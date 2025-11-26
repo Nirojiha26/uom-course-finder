@@ -34,25 +34,33 @@ namespace Backend.Controllers
                 user.Id,
                 user.FullName,
                 user.Username,
-                user.Email
+                user.Email,
+                PreferredDark = user.PreferredDark ?? false
             });
         }
 
         // PUT: api/profile
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateProfile([FromBody] User updated)
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto updated)
         {
             var userId = _jwt.GetUserIdFromToken(Request);
 
             var user = await _userService.GetByIdAsync(userId);
             if (user == null) return NotFound("User not found");
 
-            user.FullName = updated.FullName ?? user.FullName;
-            user.Username = updated.Username ?? user.Username;
+            // Update only allowed fields
+            user.FullName = !string.IsNullOrWhiteSpace(updated.FullName) ? updated.FullName : user.FullName;
+            user.Username = !string.IsNullOrWhiteSpace(updated.Username) ? updated.Username : user.Username;
+
+            // Persist theme preference when provided
+            if (updated.PreferredDark.HasValue)
+            {
+                user.PreferredDark = updated.PreferredDark.Value;
+            }
 
             await _userService.UpdateAsync(user);
-            return Ok("Profile updated successfully");
+            return Ok(new { message = "Profile updated successfully" });
         }
     }
 }

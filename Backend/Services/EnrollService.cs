@@ -20,9 +20,12 @@ namespace Backend.Services
         public Task<List<EnrolledCourse>> GetByUserIdAsync(string userId) =>
             _enrolled.Find(e => e.UserId == userId).ToListAsync();
 
-        public Task<EnrolledCourse?> GetByUserAndCourse(string userId, string courseId) =>
-            _enrolled.Find(e => e.UserId == userId && e.CourseId == courseId)
+        public async Task<EnrolledCourse?> GetByUserAndCourse(string userId, string courseId)
+        {
+            var result = await _enrolled.Find(e => e.UserId == userId && e.CourseId == courseId)
                 .FirstOrDefaultAsync();
+            return result;
+        }
 
         public Task CreateAsync(EnrolledCourse e) =>
             _enrolled.InsertOneAsync(e);

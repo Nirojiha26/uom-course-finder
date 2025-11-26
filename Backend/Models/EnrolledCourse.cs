@@ -7,10 +7,10 @@ namespace Backend.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
-        public string UserId { get; set; }
-        public string CourseId { get; set; }
+        public string? UserId { get; set; }
+        public string? CourseId { get; set; }
         public DateTime EnrolledAt { get; set; } = DateTime.UtcNow;
     }
 }
