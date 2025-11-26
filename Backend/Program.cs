@@ -37,6 +37,7 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSingleton<EnrollService>();
 
 
 //  Swagger + JWT Auth
