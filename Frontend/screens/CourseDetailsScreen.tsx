@@ -1,3 +1,4 @@
+// Frontend/screens/CourseDetailsScreen.tsx
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -12,7 +13,7 @@ import {
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { getCourseById } from "../services/courses";
 import { Ionicons, Feather } from "@expo/vector-icons";
-import { enrollCourse } from "../services/courses";
+import { enrollCourse } from "../services/enroll";  // ✅ FIXED
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { toggleFavorite } from "../redux/slices/favoritesSlice";
@@ -35,11 +36,10 @@ export default function CourseDetailsScreen() {
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch specific course
   useEffect(() => {
     getCourseById(id)
-      .then((data) => setCourse(data))
-      .catch((err) => console.error("API Error:", err))
+      .then(setCourse)
+      .catch((err) => console.error("Course Load Error:", err))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -54,30 +54,24 @@ export default function CourseDetailsScreen() {
   if (!course) {
     return (
       <View style={styles.center}>
-        <Text style={{ fontSize: 18, color: "red" }}>Course not found</Text>
+        <Text style={{ fontSize: 18, color: "red" }}>
+          Course not found
+        </Text>
       </View>
     );
   }
 
-  // Check if course is favorite
   const isFav = favorites.some((c) => c.id === course.id);
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
-      {/* Back */}
-      <TouchableOpacity
-        style={styles.backBtn}
-        onPress={() => navigation.goBack()}
-      >
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+
+      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back" size={26} color={colors.primary} />
       </TouchableOpacity>
 
-      {/* Image */}
       <Image source={{ uri: course.imageUrl }} style={styles.image} />
 
-      {/* Title Row + Heart */}
       <View style={styles.row}>
         <Text style={[styles.title, { color: colors.primary }]}>
           {course.title}
@@ -85,24 +79,19 @@ export default function CourseDetailsScreen() {
 
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity onPress={() => dispatch(toggleFavorite(course))}>
-            <Feather
-              name="heart"
-              size={26}
-              color={isFav ? "red" : colors.muted}
-            />
+            <Feather name="heart" size={26} color={isFav ? "red" : colors.muted} />
           </TouchableOpacity>
 
+          {/* ENROLL BUTTON */}
           <TouchableOpacity
             style={[styles.button, { backgroundColor: colors.primary }]}
             onPress={async () => {
               try {
-                await enrollCourse(course.id);
+                const res = await enrollCourse(course.id);
                 Alert.alert("Success", "Enrolled successfully!");
               } catch (err: any) {
-                Alert.alert(
-                  "Error",
-                  err.response?.data ?? "Something went wrong"
-                );
+                console.log("Enroll Error:", err.response?.data);
+                Alert.alert("Error", err.response?.data ?? "Something went wrong");
               }
             }}
           >
@@ -114,6 +103,7 @@ export default function CourseDetailsScreen() {
       <Text style={[styles.department, { color: colors.muted }]}>
         {course.department}
       </Text>
+
       <Text style={[styles.desc, { color: colors.text }]}>
         {course.description}
       </Text>
@@ -124,57 +114,24 @@ export default function CourseDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  backBtn: {
-    padding: 16,
-  },
-  image: {
-    width: "100%",
-    height: 220,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-  },
+  container: { flex: 1, backgroundColor: "#fff" },
+  backBtn: { padding: 16 },
+  image: { width: "100%", height: 220 },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     paddingHorizontal: 20,
     marginTop: 15,
   },
-  title: {
-    fontSize: 26,
-    fontWeight: "800",
-    width: "80%",
-  },
-  department: {
-    fontSize: 15,
-    fontWeight: "600",
-    paddingHorizontal: 20,
-    marginTop: 4,
-  },
-  desc: {
-    paddingHorizontal: 20,
-    fontSize: 15,
-    marginTop: 16,
-    lineHeight: 22,
-  },
+  title: { fontSize: 26, fontWeight: "800", width: "80%" },
+  department: { paddingHorizontal: 20, marginTop: 4, fontSize: 15 },
+  desc: { paddingHorizontal: 20, marginTop: 16, fontSize: 15, lineHeight: 22 },
   button: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
     marginLeft: 12,
   },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 14,
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  buttonText: { color: "#fff", fontWeight: "700" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
 });
