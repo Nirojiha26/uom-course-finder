@@ -1,7 +1,10 @@
+// services/enroll.ts
 import api from "./api";
 
 export const enrollCourse = (courseId: string) =>
-  api.post(`/enroll/${courseId}`);
+  api.post(`/Enroll/${courseId}`);
 
-export const getMyCourses = () =>
-  api.get("/enroll/my-courses").then(res => res.data);
+export const getMyCourses = async () => {
+  const res = await api.get("/Enroll/my-courses");
+  return res.data; // returns array of enrolled courses
+};
