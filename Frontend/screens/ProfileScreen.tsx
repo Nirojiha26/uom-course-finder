@@ -12,9 +12,11 @@ import {
   Switch,
 } from "react-native";
 import { getProfile, updateProfile } from "../services/auth";
+import { removeToken } from "../utils/Storage"; // IMPORTANT
 import { useTheme } from "../theme/ThemeProvider";
+import { Ionicons } from "@expo/vector-icons";
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }: any) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -36,6 +38,7 @@ export default function ProfileScreen() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Save profile
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -53,6 +56,24 @@ export default function ProfileScreen() {
     setSaving(false);
   };
 
+  // Logout Handler
+  const handleLogout = async () => {
+    Alert.alert("Confirm Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await removeToken();
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Login" }],
+          });
+        },
+      },
+    ]);
+  };
+
   if (loading)
     return (
       <View style={styles.center}>
@@ -63,8 +84,9 @@ export default function ProfileScreen() {
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
+      showsVerticalScrollIndicator={false}
     >
-      {/* TOP PROFILE SECTION */}
+      {/* PROFILE HEADER */}
       <View
         style={[
           styles.profileCard,
@@ -86,8 +108,13 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {/* DARK MODE TOGGLE */}
-      <View style={styles.row}>
+      {/* SETTINGS SECTION */}
+      <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+        Settings
+      </Text>
+
+      {/* Dark Mode */}
+      <View style={[styles.row, { borderColor: colors.border }]}>
         <Text style={[styles.label, { color: colors.text }]}>Dark Mode</Text>
         <Switch
           value={dark}
@@ -97,7 +124,11 @@ export default function ProfileScreen() {
         />
       </View>
 
-      {/* FORM FIELDS */}
+      {/* ACCOUNT INFO */}
+      <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+        Account Information
+      </Text>
+
       <Text style={[styles.label, { color: colors.text }]}>Full Name</Text>
       <TextInput
         style={[
@@ -130,7 +161,7 @@ export default function ProfileScreen() {
         placeholderTextColor={colors.muted}
       />
 
-      <Text style={[styles.label, { color: colors.text }]}>Email (Read only)</Text>
+      <Text style={[styles.label, { color: colors.text }]}>Email</Text>
       <TextInput
         style={[
           styles.input,
@@ -156,10 +187,28 @@ export default function ProfileScreen() {
         )}
       </TouchableOpacity>
 
+      {/* LOGOUT BUTTON */}
+      <TouchableOpacity
+        style={[styles.logoutBtn, { borderColor: colors.primary }]}
+        onPress={handleLogout}
+      >
+        <Ionicons
+          name="log-out-outline"
+          size={22}
+          color={colors.primary}
+          style={{ marginRight: 6 }}
+        />
+        <Text style={[styles.logoutText, { color: colors.primary }]}>
+          Logout
+        </Text>
+      </TouchableOpacity>
+
       <View style={{ height: 60 }} />
     </ScrollView>
   );
 }
+
+/* ===================== STYLES ===================== */
 
 const styles = StyleSheet.create({
   container: { padding: 20 },
@@ -167,8 +216,8 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
 
   profileCard: {
-    marginTop: 40,
-    marginBottom: 30,
+    marginTop: 30,
+    marginBottom: 25,
     borderRadius: 25,
     padding: 20,
     flexDirection: "row",
@@ -176,23 +225,36 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "95%",
     borderWidth: 1,
+    alignItems: "center",
   },
 
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 85,
+    height: 85,
+    borderRadius: 42,
     borderWidth: 3,
   },
 
   hello: { fontSize: 16 },
-
   usernameText: { fontSize: 22, fontWeight: "700" },
 
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginTop: 10,
+    marginBottom: 12,
+  },
+
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+  },
+
   label: {
-    fontSize: 14,
-    marginTop: 15,
-    marginBottom: 5,
+    fontSize: 15,
     fontWeight: "600",
   },
 
@@ -201,10 +263,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
+    marginBottom: 10,
   },
 
   button: {
-    marginTop: 30,
+    marginTop: 25,
     padding: 14,
     borderRadius: 12,
     alignItems: "center",
@@ -212,10 +275,20 @@ const styles = StyleSheet.create({
 
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
 
-  row: {
+  logoutBtn: {
+    marginTop: 20,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
+    alignSelf: "center",
+    width: "50%",
+  },
+
+  logoutText: {
+    fontSize: 14,
+    fontWeight: "600",
   },
 });
