@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  Image,
 } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { getMyCourses } from "../services/enroll";
@@ -15,14 +16,19 @@ type RootStackParamList = {
   Details: { id: string };
 };
 
-interface EnrolledItem {
+interface EnrolledCourse {
   id?: string;
   courseId: string;
+  title: string;
+  description: string;
+  department: string;
+  imageUrl: string;
+  enrolledAt: string;
 }
 
 export default function MyCoursesScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [list, setList] = useState<EnrolledItem[]>([]);
+  const [list, setList] = useState<EnrolledCourse[]>([]);
   const { colors } = useTheme();
 
   useEffect(() => {
@@ -50,9 +56,22 @@ export default function MyCoursesScreen() {
               navigation.navigate("Details", { id: item.courseId })
             }
           >
-            <Text style={[styles.itemText, { color: colors.text }]}>
-              • Course: {item.courseId}
-            </Text>
+            <Image
+              source={{ uri: item.imageUrl }}
+              style={styles.cardImage}
+              resizeMode="cover"
+            />
+            <View style={styles.cardContent}>
+              <Text style={[styles.courseTitle, { color: colors.primary }]}>
+                {item.title}
+              </Text>
+              <Text style={[styles.courseDept, { color: colors.muted }]}>
+                {item.department}
+              </Text>
+              <Text style={[styles.courseDesc, { color: colors.text }]}>
+                {item.description.substring(0, 80)}...
+              </Text>
+            </View>
           </TouchableOpacity>
         )}
       />
@@ -69,7 +88,20 @@ export default function MyCoursesScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   heading: { fontSize: 22, fontWeight: "700", marginBottom: 14 },
-  card: { padding: 14, marginBottom: 10, borderRadius: 10 },
-  itemText: { fontSize: 15, fontWeight: "500" },
+  card: {
+    borderRadius: 12,
+    marginBottom: 14,
+    overflow: "hidden",
+  },
+  cardImage: {
+    width: "100%",
+    height: 160,
+  },
+  cardContent: {
+    padding: 12,
+  },
+  courseTitle: { fontSize: 16, fontWeight: "700", marginBottom: 4 },
+  courseDept: { fontSize: 13, marginBottom: 6 },
+  courseDesc: { fontSize: 14, lineHeight: 20 },
   emptyText: { textAlign: "center", marginTop: 30, fontSize: 15 },
 });
