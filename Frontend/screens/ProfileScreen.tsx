@@ -23,20 +23,36 @@ export default function ProfileScreen({ navigation }: any) {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const { colors, dark, toggle } = useTheme();
 
   // Load profile
   useEffect(() => {
-    getProfile()
-      .then((res: any) => {
-        setFullName(res.data.fullName || "");
-        setUsername(res.data.username || "");
-        setEmail(res.data.email || "");
-      })
-      .catch(() => Alert.alert("Error", "Failed to load profile"))
-      .finally(() => setLoading(false));
+    loadProfile();
   }, []);
+
+  // Reload profile when screen comes into focus (after editing)
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadProfile();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const loadProfile = async () => {
+    try {
+      const res: any = await getProfile();
+      setFullName(res.data.fullName || "");
+      setUsername(res.data.username || "");
+      setEmail(res.data.email || "");
+      setProfileImage(res.data.profileImage || null);
+    } catch (error) {
+      Alert.alert("Error", "Failed to load profile");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Save profile
   const handleSave = async () => {
@@ -93,12 +109,25 @@ export default function ProfileScreen({ navigation }: any) {
           { backgroundColor: colors.card, borderColor: colors.border },
         ]}
       >
-        <Image
-          source={{
-            uri: "https://t3.ftcdn.net/jpg/15/34/03/58/360_F_1534035806_6gn57ou4V0dVZY6l30h6nEB5gWQRAP6v.jpg",
-          }}
-          style={[styles.avatar, { borderColor: colors.primary }]}
-        />
+        <View style={styles.avatarContainer}>
+          <Image
+            source={
+              profileImage
+                ? { uri: profileImage }
+                : {
+                    uri: "https://t3.ftcdn.net/jpg/15/34/03/58/360_F_1534035806_6gn57ou4V0dVZY6l30h6nEB5gWQRAP6v.jpg",
+                  }
+            }
+            style={[styles.avatar, { borderColor: colors.primary }]}
+          />
+
+          <TouchableOpacity
+            style={[styles.editProfileButton, { backgroundColor: colors.primary }]}
+            onPress={() => navigation.navigate("EditProfile")}
+          >
+            <Ionicons name="pencil" size={16} color="#fff" />
+          </TouchableOpacity>
+        </View>
 
         <View>
           <Text style={[styles.hello, { color: colors.muted }]}>Hello,</Text>
@@ -226,6 +255,7 @@ const styles = StyleSheet.create({
     width: "95%",
     borderWidth: 1,
     alignItems: "center",
+    position: "relative",
   },
 
   avatar: {
@@ -233,6 +263,23 @@ const styles = StyleSheet.create({
     height: 85,
     borderRadius: 42,
     borderWidth: 3,
+  },
+
+  avatarContainer: {
+    position: "relative",
+  },
+
+  editProfileButton: {
+    position: "absolute",
+    bottom: 0,
+    right: -5,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#fff",
   },
 
   hello: { fontSize: 16 },
