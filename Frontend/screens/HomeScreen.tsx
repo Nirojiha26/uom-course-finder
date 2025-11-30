@@ -14,14 +14,12 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { getCourses } from "../services/courses";
 import { useTheme } from "../theme/ThemeProvider";
-import CourseCard from "../screens/CourseCard";
+import CourseCard from "../components/CourseCard";
 // Navigation Types
 type RootStackParamList = {
   Details: { id: string };
   Home: undefined;
-  Favorites: undefined;
-  MyCourses: undefined;
-  Profile: undefined;
+  EditProfile: undefined;
 };
 
 export default function HomeScreen() {
@@ -144,32 +142,12 @@ export default function HomeScreen() {
           </Text>
         ) : (
           filtered.map((course) => (
-            <TouchableOpacity
+            <CourseCard
               key={course.id}
-              style={[
-                styles.card,
-                { backgroundColor: colors.card, borderColor: colors.border },
-              ]}
-              onPress={() => navigation.navigate("Details", { id: course.id })}
-            >
-              <Image source={{ uri: course.imageUrl }} style={styles.cardImg} />
-
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.cardTitle, { color: colors.text }]}>
-                  {course.title}
-                </Text>
-
-                <Text style={[styles.cardDesc, { color: colors.muted }]}>
-                  {course.description}
-                </Text>
-
-                <Text
-                  style={[styles.cardDepartment, { color: colors.primary }]}
-                >
-                  {course.department}
-                </Text>
-              </View>
-            </TouchableOpacity>
+              course={course}
+              onPress={(course) => navigation.navigate("Details", { id: course.id })}
+              colors={colors}
+            />
           ))
         )}
       </View>
@@ -214,34 +192,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     marginRight: 12,
-  },
-
-  /* Cards */
-  card: {
-    flexDirection: "row",
-    padding: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    marginBottom: 16,
-  },
-  cardImg: {
-    width: 90,
-    height: 90,
-    borderRadius: 12,
-    marginRight: 12,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  cardDesc: {
-    fontSize: 13,
-    marginTop: 4,
-  },
-  cardDepartment: {
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: "600",
   },
 
   noResults: {

@@ -6,9 +6,7 @@ import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
 import ResetPasswordScreen from "../screens/ResetPasswordScreen";
 import BottomTabs from "./BottomTabs";
 import CourseDetailsScreen from "../screens/CourseDetailsScreen";
-import FavoritesScreen from "../screens/FavoritesScreen";
-import ProfileScreen from "../screens/ProfileScreen";
-import MyCoursesScreen from "../screens/MyCoursesScreen";
+import EditProfileScreen from "../screens/EditProfileScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -24,9 +22,7 @@ export default function RootNavigator() {
       {/* App Main Screens */}
       <Stack.Screen name="Home" component={BottomTabs} />
       <Stack.Screen name="Details" component={CourseDetailsScreen} />
-      <Stack.Screen name="Favorites" component={FavoritesScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-<Stack.Screen name="MyCourses" component={MyCoursesScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
 
     </Stack.Navigator>
   );
