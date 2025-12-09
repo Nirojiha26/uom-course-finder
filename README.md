@@ -143,22 +143,23 @@ Frontend/
 └── tsconfig.json
 
 
-##  Screenshots
+## Screenshots
 
 <table>
   <tr>
-    <td><img src="Frontend/assets/Screenshots/Screenshot1.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot2.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot3.png" height="420" /></td>
+    <td><img src="assets/Screenshots/Screenshot1.png" height="420" /></td>
+    <td><img src="assets/Screenshots/Screenshot2.png" height="420" /></td>
+    <td><img src="assets/Screenshots/Screenshot3.png" height="420" /></td>
   </tr>
   <tr>
-    <td><img src="Frontend/assets/Screenshots/Screenshot4.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot5.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot6.png" height="420" /></td>
+    <td><img src="assets/Screenshots/Screenshot4.png" height="420" /></td>
+    <td><img src="assets/Screenshots/Screenshot5.png" height="420" /></td>
+    <td><img src="assets/Screenshots/Screenshot6.png" height="420" /></td>
   </tr>
   <tr>
-    <td><img src="Frontend/assets/Screenshots/Screenshot7.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot8.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot9.png" height="420" /></td>
+    <td><img src="assets/Screenshots/Screenshot7.png" height="420" /></td>
+    <td><img src="assets/Screenshots/Screenshot8.png" height="420" /></td>
+    <td><img src="assets/Screenshots/Screenshot9.png" height="420" /></td>
   </tr>
 </table>
+
