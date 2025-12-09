@@ -152,22 +152,30 @@ Frontend/
 
 ## Screenshots
 
-<table>
-  <tr>
-    <td><img src="Frontend/assets/Screenshots/Screenshot1.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot2.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot3.png" height="420" /></td>
-  </tr>
-  <tr>
-    <td><img src="Frontend/assets/Screenshots/Screenshot4.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot5.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot6.png" height="420" /></td>
-  </tr>
-  <tr>
-    <td><img src="Frontend/assets/Screenshots/Screenshot7.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot8.png" height="420" /></td>
-    <td><img src="Frontend/assets/Screenshots/Screenshot9.png" height="420" /></td>
-  </tr>
-</table>
+### Home Screen
+![Home Screen](Frontend/assets/Screenshots/Screenshot1.png)
 
+### Course Details
+![Course Details](Frontend/assets/Screenshots/Screenshot2.png)
+
+### Login Screen
+![Login Screen](Frontend/assets/Screenshots/Screenshot3.png)
+
+### Registration
+![Registration](Frontend/assets/Screenshots/Screenshot4.png)
+
+### Profile Management
+![Profile](Frontend/assets/Screenshots/Screenshot5.png)
+
+### Favorites
+![Favorites](Frontend/assets/Screenshots/Screenshot6.png)
+
+### My Courses
+![My Courses](Frontend/assets/Screenshots/Screenshot7.png)
+
+### Course Search
+![Course Search](Frontend/assets/Screenshots/Screenshot8.png)
+
+### Settings
+![Settings](Frontend/assets/Screenshots/Screenshot9.png)
 ```
