@@ -49,7 +49,7 @@ namespace Backend.Controllers
             var coursesList = new List<object>();
             foreach (var enrollment in enrollments)
             {
-                var course = await _courseService.GetCourseByIdAsync(enrollment.CourseId);
+                var course = await _courseService.GetCourseByIdAsync(enrollment.CourseId ?? string.Empty);
                 if (course != null)
                 {
                     coursesList.Add(new

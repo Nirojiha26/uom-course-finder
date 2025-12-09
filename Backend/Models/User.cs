@@ -39,6 +39,9 @@ namespace Backend.Models
 
         [BsonElement("preferredDark")]
         public bool? PreferredDark { get; set; }
+        
+        [BsonElement("profileImageUrl")]
+        public string? ProfileImageUrl { get; set; }
 
     }
 }

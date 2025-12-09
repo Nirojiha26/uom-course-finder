@@ -1,6 +1,10 @@
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
@@ -11,11 +15,13 @@ namespace Backend.Controllers
     {
         private readonly UserService _userService;
         private readonly JwtService _jwt;
+        private readonly IWebHostEnvironment _env;
 
-        public ProfileController(UserService userService, JwtService jwt)
+        public ProfileController(UserService userService, JwtService jwt, IWebHostEnvironment env)
         {
             _userService = userService;
             _jwt = jwt;
+            _env = env;
         }
 
         // GET: api/profile
@@ -29,13 +35,19 @@ namespace Backend.Controllers
 
             if (user == null) return NotFound("User not found");
 
+            // Build base URL like "http://192.168.1.5:5000"
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
             return Ok(new
             {
-                user.Id,
-                user.FullName,
-                user.Username,
-                user.Email,
-                PreferredDark = user.PreferredDark ?? false
+                id = user.Id,
+                fullName = user.FullName,
+                username = user.Username,
+                email = user.Email,
+                preferredDark = user.PreferredDark ?? false,
+                profileImageUrl = string.IsNullOrEmpty(user.ProfileImageUrl)
+                    ? null
+                    : baseUrl + user.ProfileImageUrl
             });
         }
 
@@ -50,13 +62,60 @@ namespace Backend.Controllers
             if (user == null) return NotFound("User not found");
 
             // Update only allowed fields
-            user.FullName = !string.IsNullOrWhiteSpace(updated.FullName) ? updated.FullName : user.FullName;
-            user.Username = !string.IsNullOrWhiteSpace(updated.Username) ? updated.Username : user.Username;
+            if (!string.IsNullOrWhiteSpace(updated.FullName))
+            {
+                user.FullName = updated.FullName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updated.Username))
+            {
+                user.Username = updated.Username;
+            }
 
             // Persist theme preference when provided
             if (updated.PreferredDark.HasValue)
             {
                 user.PreferredDark = updated.PreferredDark.Value;
+            }
+
+            // 🔹 Handle profile image (base64)
+            if (!string.IsNullOrWhiteSpace(updated.ProfileImageBase64))
+            {
+                var base64 = updated.ProfileImageBase64;
+
+                // If string is like "data:image/jpeg;base64,AAAA..."
+                var commaIndex = base64.IndexOf(',');
+                if (commaIndex >= 0)
+                {
+                    base64 = base64.Substring(commaIndex + 1);
+                }
+
+                byte[] bytes;
+                try
+                {
+                    bytes = Convert.FromBase64String(base64);
+                }
+                catch (FormatException)
+                {
+                    return BadRequest("Invalid image data");
+                }
+
+                // Where to save: wwwroot/profile-images
+                var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var uploadsFolder = Path.Combine(webRoot, "profile-images");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var fileName = $"{user.Id}_{Guid.NewGuid():N}.jpg";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                await System.IO.File.WriteAllBytesAsync(filePath, bytes);
+
+                // Store relative path in DB (e.g. "/profile-images/xxx.jpg")
+                user.ProfileImageUrl = $"/profile-images/{fileName}";
             }
 
             await _userService.UpdateAsync(user);

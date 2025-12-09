@@ -125,6 +125,8 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseStaticFiles(); // to serve files from wwwroot
+
 app.MapControllers();
 
 app.Run();

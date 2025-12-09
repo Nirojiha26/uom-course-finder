@@ -5,5 +5,6 @@ namespace Backend.Models
         public string? FullName { get; set; }
         public string? Username { get; set; }
         public bool? PreferredDark { get; set; }
+        public string? ProfileImageBase64 { get; set; }
     }
 }
