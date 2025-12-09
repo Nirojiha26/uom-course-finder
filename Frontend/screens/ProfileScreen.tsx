@@ -41,18 +41,20 @@ export default function ProfileScreen({ navigation }: any) {
   }, [navigation]);
 
   const loadProfile = async () => {
-    try {
-      const res: any = await getProfile();
-      setFullName(res.data.fullName || "");
-      setUsername(res.data.username || "");
-      setEmail(res.data.email || "");
-      setProfileImage(res.data.profileImage || null);
-    } catch (error) {
-      Alert.alert("Error", "Failed to load profile");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const res: any = await getProfile();
+    setFullName(res.data.fullName || "");
+    setUsername(res.data.username || "");
+    setEmail(res.data.email || "");
+
+    // 🔹 use profileImageUrl from backend (or null)
+    setProfileImage(res.data.profileImageUrl || null);
+  } catch (error) {
+    Alert.alert("Error", "Failed to load profile");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Save profile
   const handleSave = async () => {

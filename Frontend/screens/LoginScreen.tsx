@@ -87,7 +87,7 @@ export default function LoginScreen() {
         >
           {/* LOGO → FIXED AS LOCAL ASSET */}
           <Image
-            source={require("../assets/logo.jpg")}
+            source={require("../assets/images.jpeg")}
             style={styles.logo}
             resizeMode="contain"
           />

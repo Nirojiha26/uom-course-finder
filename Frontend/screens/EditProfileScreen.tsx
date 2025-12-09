@@ -13,7 +13,6 @@ import {
   Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from 'expo-file-system';
 import { getProfile, updateProfile } from "../services/auth";
 import { useTheme } from "../theme/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,13 +20,17 @@ import { Ionicons } from "@expo/vector-icons";
 export default function EditProfileScreen({ navigation }: any) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+
+  // For showing the image (URL from backend or file:// from picker)
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  // The original image URL from backend (to check if changed)
   const [originalProfileImage, setOriginalProfileImage] = useState<string | null>(null);
+  // Base64 data to send to backend when image is changed
+  const [profileImageBase64, setProfileImageBase64] = useState<string | null>(null);
 
   const { colors } = useTheme();
 
@@ -39,11 +42,18 @@ export default function EditProfileScreen({ navigation }: any) {
   const loadProfile = async () => {
     try {
       const res: any = await getProfile();
+
       setFullName(res.data.fullName || "");
       setUsername(res.data.username || "");
       setEmail(res.data.email || "");
-      setProfileImage(res.data.profileImage || null);
-      setOriginalProfileImage(res.data.profileImage || null);
+
+      // 🔹 use profileImageUrl from backend
+      const imageUrl = res.data.profileImageUrl || null;
+      setProfileImage(imageUrl);
+      setOriginalProfileImage(imageUrl);
+
+      // clear base64 when loading from server
+      setProfileImageBase64(null);
     } catch (error) {
       Alert.alert("Error", "Failed to load profile");
     } finally {
@@ -54,33 +64,47 @@ export default function EditProfileScreen({ navigation }: any) {
   // Pick image from gallery
   const pickImage = async () => {
     try {
-      console.log('Starting image picker...');
-      
+      console.log("Starting image picker...");
+
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      console.log('Permission result:', permissionResult);
       
+
       if (!permissionResult.granted) {
-        Alert.alert("Permission Required", "Please grant camera roll permissions to upload a profile picture");
+        Alert.alert(
+          "Permission Required",
+          "Please grant gallery permissions to upload a profile picture"
+        );
         return;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.7,
+        base64: true, // 🔹 we need base64
       });
 
-      console.log('Image picker result:', result);
+     
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        console.log('Image selected:', result.assets[0].uri);
-        setProfileImage(result.assets[0].uri);
+        const asset = result.assets[0];
+      
+
+        // Local preview
+        setProfileImage(asset.uri);
+
+        // Build base64 string to send to backend
+        if (asset.base64) {
+          const mimeType = asset.mimeType || "image/jpeg";
+          const base64String = `data:${mimeType};base64,${asset.base64}`;
+          setProfileImageBase64(base64String);
+        }
       } else {
-        console.log('Image selection canceled or failed');
+        console.log("Image selection canceled or failed");
       }
     } catch (error) {
-      console.error('Image picker error:', error);
+      console.error("Image picker error:", error);
       Alert.alert("Error", "Failed to open gallery. Please try again.");
     }
   };
@@ -89,9 +113,12 @@ export default function EditProfileScreen({ navigation }: any) {
   const takePhoto = async () => {
     try {
       const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-      
+
       if (!permissionResult.granted) {
-        Alert.alert("Permission Required", "Please grant camera permissions to take a profile picture");
+        Alert.alert(
+          "Permission Required",
+          "Please grant camera permissions to take a profile picture"
+        );
         return;
       }
 
@@ -99,15 +126,25 @@ export default function EditProfileScreen({ navigation }: any) {
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.7,
+        base64: true, // 🔹 we need base64
       });
 
-      console.log('Camera result:', result);
+    
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
-        setProfileImage(result.assets[0].uri);
+        const asset = result.assets[0];
+
+        // Local preview
+        setProfileImage(asset.uri);
+
+        if (asset.base64) {
+          const mimeType = asset.mimeType || "image/jpeg";
+          const base64String = `data:${mimeType};base64,${asset.base64}`;
+          setProfileImageBase64(base64String);
+        }
       }
     } catch (error) {
-      console.error('Camera error:', error);
+      console.error("Camera error:", error);
       Alert.alert("Error", "Failed to open camera. Please try again.");
     }
   };
@@ -135,14 +172,6 @@ export default function EditProfileScreen({ navigation }: any) {
     );
   };
 
-  // Upload image to server (placeholder - you may need to implement actual upload)
-  const uploadImage = async (uri: string): Promise<string> => {
-    // For now, we'll just return the URI as if it was uploaded
-    // In a real app, you would upload to a service like AWS S3, Cloudinary, etc.
-    // and return the URL
-    return uri;
-  };
-
   // Save profile
   const handleSave = async () => {
     if (!fullName.trim() || !username.trim()) {
@@ -157,26 +186,15 @@ export default function EditProfileScreen({ navigation }: any) {
         username: username.trim(),
       };
 
-      // Handle profile image if changed
-      if (profileImage !== originalProfileImage) {
-        if (profileImage && profileImage.startsWith('file://')) {
-          // This is a new local image, upload it first
-          const uploadedImageUrl = await uploadImage(profileImage);
-          updateData.profileImage = uploadedImageUrl;
-        } else if (profileImage) {
-          // This is already a URL
-          updateData.profileImage = profileImage;
-        } else {
-          // Image was removed
-          updateData.profileImage = null;
-        }
+      // 🔹 Only send image if user changed it and we have base64
+      if (profileImage !== originalProfileImage && profileImageBase64) {
+        updateData.profileImageBase64 = profileImageBase64;
       }
 
       await updateProfile(updateData);
-      
-      // Go back to profile screen
-      navigation.goBack();
+
       Alert.alert("Success", "Profile updated successfully!");
+      navigation.goBack();
     } catch (err: any) {
       const msg = err?.response?.data ?? err?.message ?? "Update failed";
       Alert.alert("Error", msg);
@@ -230,13 +248,8 @@ export default function EditProfileScreen({ navigation }: any) {
             <TouchableOpacity
               style={[styles.cameraButton, { backgroundColor: colors.primary }]}
               onPress={showImageOptions}
-              disabled={uploading}
             >
-              {uploading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Ionicons name="camera" size={20} color="#fff" />
-              )}
+              <Ionicons name="camera" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
           <Text style={[styles.imageText, { color: colors.text }]}>
