@@ -9,6 +9,7 @@ The app helps university students browse, enroll, and manage courses with secure
 ## Features
 
 ### 🔹 Course Management
+
 - Browse all available courses
 - Search and filter courses by category
 - View detailed course information
@@ -16,22 +17,26 @@ The app helps university students browse, enroll, and manage courses with secure
 - View enrolled courses per user
 
 ### 🔹 Authentication & Security
+
 - User registration & login
 - JWT-based authentication
 - OTP-based forgot password & reset password
 - Secure token storage using AsyncStorage
 
 ### 🔹 Favorites System
+
 - Add/remove courses from favorites
 - Persistent favorites using Redux Toolkit
 - View favorite courses in profile
 
 ### 🔹 User Profile
+
 - View & update profile
 - Upload & update profile picture
 - Toggle dark mode preference
 
 ### 🔹 Smooth Navigation
+
 - Bottom navigation bar with:
   - Home
   - Favorites
@@ -43,6 +48,7 @@ The app helps university students browse, enroll, and manage courses with secure
 ## Technologies Used
 
 ### **Backend (ASP.NET Core + MongoDB)**
+
 - .NET 9 Web API
 - C#
 - MongoDB
@@ -53,6 +59,7 @@ The app helps university students browse, enroll, and manage courses with secure
 - Swagger Documentation
 
 ### 🔹 **Frontend (React Native + Expo)**
+
 - React Native
 - Expo
 - TypeScript
@@ -147,19 +154,20 @@ Frontend/
 
 <table>
   <tr>
-    <td><img src="assets/Screenshots/Screenshot1.png" height="420" /></td>
-    <td><img src="assets/Screenshots/Screenshot2.png" height="420" /></td>
-    <td><img src="assets/Screenshots/Screenshot3.png" height="420" /></td>
+    <td><img src="Frontend/assets/Screenshots/Screenshot1.png" height="420" /></td>
+    <td><img src="Frontend/assets/Screenshots/Screenshot2.png" height="420" /></td>
+    <td><img src="Frontend/assets/Screenshots/Screenshot3.png" height="420" /></td>
   </tr>
   <tr>
-    <td><img src="assets/Screenshots/Screenshot4.png" height="420" /></td>
-    <td><img src="assets/Screenshots/Screenshot5.png" height="420" /></td>
-    <td><img src="assets/Screenshots/Screenshot6.png" height="420" /></td>
+    <td><img src="Frontend/assets/Screenshots/Screenshot4.png" height="420" /></td>
+    <td><img src="Frontend/assets/Screenshots/Screenshot5.png" height="420" /></td>
+    <td><img src="Frontend/assets/Screenshots/Screenshot6.png" height="420" /></td>
   </tr>
   <tr>
-    <td><img src="assets/Screenshots/Screenshot7.png" height="420" /></td>
-    <td><img src="assets/Screenshots/Screenshot8.png" height="420" /></td>
-    <td><img src="assets/Screenshots/Screenshot9.png" height="420" /></td>
+    <td><img src="Frontend/assets/Screenshots/Screenshot7.png" height="420" /></td>
+    <td><img src="Frontend/assets/Screenshots/Screenshot8.png" height="420" /></td>
+    <td><img src="Frontend/assets/Screenshots/Screenshot9.png" height="420" /></td>
   </tr>
 </table>
 
+```
