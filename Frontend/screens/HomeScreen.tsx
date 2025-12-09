@@ -15,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getCourses } from "../services/courses";
 import { useTheme } from "../theme/ThemeProvider";
 import CourseCard from "../components/CourseCard";
+import Header from "../components/Header";
 // Navigation Types
 type RootStackParamList = {
   Details: { id: string };
@@ -31,10 +32,12 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
 
   const [category, setCategory] = useState("All");
+  const [activeTab, setActiveTab] = useState("Courses");
 
   const { colors } = useTheme(); // 🎨 dynamic dark/light theme
 
   const categories = ["All", "Computer Science", "AI", "Design", "Business"];
+  const tabs = ["Courses", "Tips", "Workouts"];
 
   // Fetch courses from API
   useEffect(() => {
